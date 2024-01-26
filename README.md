@@ -8,7 +8,18 @@ This section covers the following material:
 
 - Two Types of Problems
 - Question-Answer Algorithms
+    - Minimum/Maximum Value
+    - Sum
+    - Average
+    - Mode
+    - An Element with a Property
+    - All Elements with a Property
+    - Access All Consecutive Pairs of Elements
+    - Determine the Presence or Absence of Duplicate Elements
+    - Determine the Number of Elements Meeting Criteria
 - Array Modification Algorithms
+    - Shift Elements Left/Right
+    - Reverse the Order of Elements
 
 To use this repository, start with the `notes.md` document, referencing the various `.java` documents as you go to see the examples in action.
 

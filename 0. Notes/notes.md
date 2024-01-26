@@ -101,7 +101,7 @@ Here are the basic steps of the algorithm:
 Here is what this algorithm could look like with an `int` array from the `NotesAverage1.java` file:
 
 ```java
-public static int findAverage(int[] nums) {
+public static double findAverage(int[] nums) {
     int sum = 0;
     for (int num : nums) {
         sum += num;
@@ -245,8 +245,225 @@ With arrays of any type, we might ask questions about relating to **consecutive 
 
 A great subtle example of a question like this would be to ask if an array of numbers is in increasing order. The key to evaluating if the values of an array are in increasing order would to go one at a time and make sure each element is greater than the one before it. Important to note that my phrasing there indicated that we need a value and the value before it, which is a consecutive pair of values from the array.
 
+With the need for two elements at once, related by their indices being next to each, this is situation where a regular `for` loop is much more appropriate than an enhanced `for` loop.
 
+Here are the basic steps of this algorithm:
+- Iterate over the array starting at the second index:
+    - Check if the element at the current index is greater than or equal to the element at the index before it.
+    - If it is, skip it.
+    - If it is not, `return` `false`.
+- Since all elements were in order, `return` `true`.
 
+Here is what this algorithm could look like with an `int` array with the goal of determining if it is in increasing order from the `NotesConsecutivePairs1.java` file:
+
+```java
+public static boolean isIncreasing(int[] nums) {
+    for (int i = 1; i < nums.length; i++) {
+        if (nums[i] < nums[i - 1]) {
+            return false;
+        }
+    }
+    return true;
+}
+```
+
+Important Notes:
+- We started `i` at `1` because with `i - 1` later on, we need to be careful not to get `-1` as an index if `i` was `0`.
+- `i` and `i - 1` are consecutive indices, so they represent elements that are next to each other. You can get more elements next to each other with `i + 1`, `i - 2`, etc. Whenever you do this, you just have to adjust your loop bounds to make sure they don't result in an `ArrayIndexOutOfBoundsError`.
+- We reversed the `boolean` condition because we wanted to take action when it failed (so reversing it makes failing it `true`).
+
+### Determine the Presence or Absence of Duplicate Elements
+
+With arrays of any type, we might ask the question of **whether or not any duplicate elements exist**.
+
+This algorithm will take a lot from our mode algorithm from earlier, as we will need to use nested loops: once to select each element, another to check for duplicates of the selected element.
+
+Here are the basic steps of this algorithm:
+- Iterate over the array:
+    - Create a temporary counting variable to keep track of how many copies of the value we find. Initialize it to `0`.
+    - Iterate over the array:
+        - Check if the outer loop current array element is the same as the inner loop current array element.
+        - If it is, increment the temporary counting variable by `1`.
+        - If it is not, skip it.
+    - Check if the temporary counting variable is bigger than `2`.
+    - If it is, `return` `true`.
+    - If it is not, skip it.
+- Since we did not find any duplicates, `return` `false`.
+
+Here is what this algorithm could look like with a `double` array from the `NotesDuplicates1.java` file:
+
+```java
+public static boolean areDuplicates(double[] vals) {
+    for (double val1 : vals) {
+        int tempTimes = 0;
+        for (double val2 : vals) {
+            if (val1 == val2) {
+                tempTimes++;
+            }
+        }
+        if (tempTimes >= 2) {
+            return true;
+        }
+    }
+    return false;
+}
+```
+
+Important Notes:
+- `tempTimes` started at `0` because the inner loop will include the array element the outer loop is currently working on. If it had started at `1` like `numTimes`, we would be double-counting an element, guaranteeing a duplicate even if there isn't one.
+- We check if `tempTimes` is greater than or equal to `2`, because finding `2` or more of an element would mean there were duplicates, whereas just finding `1` would mean that it's unique.
+- We don't have to reset `tempTimes` because the outer loop does that by iterating.
+
+### Determine the Number of Elements Meeting Criteria
+
+Just like we asked whether or not any elements meet a criteria or whether or not all element meet a criteria, we might have a question that is a middle ground: **how many elements meet a criteria**.
+
+This algorithm will need to go through each element, decides if it meets criteria, and keep track of how many do meet the criteria.
+
+Here are the basic steps of this algorithm:
+- Create a counting variable to keep track of how many elements meet the criteria. Initialize it to `0`.
+- Iterate over the array:
+    - Check if the current array element meets the criteria.
+    - If it does, increment the counting variable.
+    - If it does not, skip it.
+- `return` the value of the counting variable
+
+Here is what this algorithm could look like with a `double` array from the `NotesNumberCriteria1.java` file:
+
+```java
+public static int howManyOldPeople(Person[] people) {
+    int count = 0;
+    for (Person person : people) {
+        if (person.getAge() > 60) {
+            count++;
+        }
+    }
+    return count;
+}
+```
+
+---
+
+## Modification Problems
+
+### Shift Elements Left/Right
+
+Given an array, shifting elements left or right would mean every elements index shifts either up or down. Here is a visual example:
+
+```
+Index:          0   1   2   3   4   5   6
+Elements:       3   6   9   12  15  18  21
+Shift Left:     6   9   12  15  18  21  3
+Shift Right:    21  3   6   9   12  15  18
+```
+
+Notice that we have this **wrapping around** behavior, where if an element would be pushed off the end of the array in either direction, it instead wraps around to the opposite side of the array. Doing this ensures we don't lose any elements.
+
+Our algorithm to do this is going to have go one element at a time, store it temporarily, and overwrite it with whatever has to move there As an example with the shift left example, here is what the steps would make the array look like:
+
+```
+Index:      0   1   2   3   4   5   6
+Elements:   3   6   9   12  15  18  21
+Step 1:     6   6   9   12  15  18  21
+Step 2:     6   9   9   12  15  18  21
+Step 3:     6   9   12  12  15  18  21
+Step 4:     6   9   12  15  15  18  21
+Step 5:     6   9   12  15  18  18  21
+Step 6:     6   9   12  15  18  21  21
+Step 7:     6   9   12  15  18  21  3
+```
+
+Notice that as we go, we seem to always have a duplicate element until the end, when it finally gets replaced with the wrap-around element. This means that we will have to keep track of the wrap-around element the whole time, and replace it at the end. We couldn't shift it over earlier without overwriting the 21 too early (in which case we would have to keep track of the 21 and continue on).
+
+Here are the basic steps of this algorithm:
+- Create a temporary variable and store the first element of the array in it.
+- Iterate over the array, ending one element early:
+    - Overwrite the current value of the array with the next value in the array by index.
+- Overwrite the last value of the array with the original first element saved in the temporary variable.
+
+Here is what this algorithm could look like from the `NotesShift1.java` file:
+
+```java
+public static void shiftLeft(int[] nums) {
+    int first = nums[0];
+    for (int i = 0; i < nums.length - 1; i++) {
+        nums[i] = nums[i + 1];
+    }
+    nums[nums.length - 1] = first;
+}
+```
+
+Important Notes:
+- Our loop uses the `boolean` condition `i < nums.length - 1` because when we use the index `i + 1` in the loop, we have to end the loop one iteration early, otherwise we would have an ArrayIndexOutOfBoundsException.
+- To access the last index after the loop we use the length minus 1, written as `nums.length - 1`.
+- This method doesn't need to return because when an array is passed as a parameter, it is a reference, so we are editing the original array!
+
+### Reverse the Order of Elements
+
+Just as we can shift elements left or right, we can reverse the order of an array as well. Here is a visual example:
+
+```
+Index:      0   1   2   3   4   5   6
+Elements:   3   6   9   12  15  18  21
+Reverse:    21  18  15  12  9   6   3
+```
+
+Notice that the middle value of the array did not change, which is because the array has a length of `7`, which is odd. An even array would have everything changed:
+
+```
+Index:      0   1   2   3   4   5
+Elements:   3   6   9   12  15  18
+Reverse:    18  15  12  9   6   3
+```
+
+An algorithm that reverses can be thought of a repeated set of swaps. We could start by swapping the first and last elements, then move in one on each side and swap the second and second to last elements, etc. until we arrive at the middle. The steps could look like this:
+
+```
+Index:      0   1   2   3   4   5
+Elements:   3   6   9   12  15  18
+Step 1:     18  6   9   12  15  3
+Step 2:     18  15  9   12  6   3
+Step 3:     18  15  12  9   6   3
+```
+
+Interestingly, this takes half as many steps as our shifting, because we are moving towards the middle from both ends, as opposed to going from one end to the other. Interestingly, this idea still works with an odd-length array if you think of the last step as swapping the middle with itself:
+
+```
+Index:      0   1   2   3   4   5   6
+Elements:   3   6   9   12  15  18  21
+Step 1:     21  6   9   12  15  18  3
+Step 2:     21  18  9   12  15  6   3
+Step 3:     21  18  15  12  9   6   3
+Step 4:     21  18  15  12  9   6   3
+```
+
+The lack of change from step 3 to step 4 was our "swap in-place" of our middle element. So a length of `6` took `3` steps, and a length of `7` took `4` steps. These are both close to half, but unfortunately `7 / 2` is equal to `3` in Java with `int` division. Fortunately though, the length of `7` was done after `3` steps, since the final step didn't actually change anything significant. This means that the number of steps for even or odd can just be calculated as the `length / 2` with `int` division!
+
+It is important to remember that if we want to swap the values of two variables (and therefore two elements of an array), we are going to need a third temporary variable so we don't permanently lose one of the values while moving things around.
+
+The only question left is, how do we have a loop that simultaneously keeps track of two indices? The weird answer is that we don't, we just track one index and use math to determine the other every time. For example, if the first swap needs to be between indices `0` and `6` (this is the length of `7`). If we are keeping track of the index `0`, we can use the length and the current index to do the math to get the other index of `6`, which would look something like `length - index - 1`. Here that would be `7 - 0 - 1`, which works. The next step should be `1` and `5`, and the calculation would be `7 - 1 - 1` so `5` is calculated correctly. This works for the even version to, with `0` and `5` calculating `6 - 0 - 1` to be `5`, and with `1` and `4` calculating `6 - 1 - 1` to be `4`.
+
+Here are the basic steps of this algorithm:
+- Iterate over the array from the beginning to the middle:
+    - Make a temporary variable to store the current array element.
+    - Set the current array element to the opposing array element using the `length - index - 1` formula.
+    - Set the opposing array element to the temporary variable value.
+
+Here is what this algorithm could look like from the `NotesReverse1.java` file:
+
+```java
+public static void reverse(int[] nums) {
+    for (int i = 0; i < nums.length / 2; i++) {
+        int temp = nums[i];
+        nums[i] = nums[nums.length - i - 1];
+        nums[nums.length - i - 1] = temp;
+    }
+}
+```
+
+Important notes:
+- A loop from `0` to `length / 2` will do exactly how many steps we need, and go through the right indices at the same time.
+- This method doesn't need to return because when an array is passed as a parameter, it is a reference, so we are editing the original array!
 
 ---
 
